@@ -20,8 +20,8 @@ app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
 
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/auth', authRouter)
+app.use('/v1/users', userRouter);
+app.use('/v1/auth', authRouter)
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500
