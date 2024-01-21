@@ -35,7 +35,6 @@ export const SignUp = () => {
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    debugger
     setLoading(true)
     const res = await fetch(`${BASE_SERVER_URL}/v1/auth/signup`, {
       method: 'POST',
