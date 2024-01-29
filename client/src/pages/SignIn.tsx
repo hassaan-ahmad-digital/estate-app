@@ -1,6 +1,8 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { BASE_SERVER_URL } from "../utils/constants"
+import { useDispatch } from "react-redux"
+import { userActions } from "../store/slices"
 
 interface SignInFormData {
   email: string;
@@ -17,7 +19,8 @@ export const SignIn = () => {
   const [error, setError] = useState<string | boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const navigate = useNavigate()
-
+  const dispatch = useDispatch()
+  const {signInFailure, signInStart, signInSuccess} = userActions
 
   const handleChange = (key: keyof SignInFormData, value: string):void => {
     setFormData(prev => {
@@ -31,7 +34,7 @@ export const SignIn = () => {
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoading(true)
+    dispatch(signInStart())
     const res = await fetch(`${BASE_SERVER_URL}/v1/auth/signin`, {
       method: 'POST',
       headers: {
@@ -42,13 +45,14 @@ export const SignIn = () => {
 
     const data = await res.json()
     if(!data.success) {
-      setError(data.message as string)
-      setLoading(false)
+      const error = new Error(data.message as string)
+      dispatch(signInFailure(error))
       return;
     }
-    setLoading(false)
-    setError(false)
-    setFormData(signInFormInitialState)
+    // setLoading(false)
+    // setError(false)
+    // setFormData(signInFormInitialState)
+    dispatch(signInSuccess())
     navigate('/')
     console.log({data})
   }
