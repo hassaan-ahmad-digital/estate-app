@@ -1,8 +1,8 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { BASE_SERVER_URL } from "../utils/constants"
-import { useDispatch } from "react-redux"
-import { userActions } from "../store/slices"
+import { useDispatch, useSelector } from "react-redux"
+import { errorSelector, loadingSelector, userActions } from "../store/user"
 
 interface SignInFormData {
   email: string;
@@ -16,8 +16,8 @@ const signInFormInitialState: SignInFormData = {
 
 export const SignIn = () => {
   const [formData, setFormData] = useState<SignInFormData>(signInFormInitialState)
-  const [error, setError] = useState<string | boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
+  const error = useSelector(errorSelector)
+  const loading = useSelector(loadingSelector)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const {signInFailure, signInStart, signInSuccess} = userActions
@@ -34,32 +34,36 @@ export const SignIn = () => {
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    dispatch(signInStart())
-    const res = await fetch(`${BASE_SERVER_URL}/v1/auth/signin`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    })
-
-    const data = await res.json()
-    if(!data.success) {
-      const error = new Error(data.message as string)
-      dispatch(signInFailure(error))
-      return;
+    try {
+      dispatch(signInStart())
+      const res = await fetch(`${BASE_SERVER_URL}/v1/auth/signin`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+  
+      const data = await res.json()
+      if(!data.success) {
+        const error = new Error(data.message as string)
+        dispatch(signInFailure(error))
+        return;
+      }
+      
+      dispatch(signInSuccess(data.user))
+      navigate('/')
+      console.log({data})
+      
+    } catch (error) {
+      dispatch(signInFailure(error as Error))
     }
-    // setLoading(false)
-    // setError(false)
-    // setFormData(signInFormInitialState)
-    dispatch(signInSuccess())
-    navigate('/')
-    console.log({data})
   }
 
   return (
     <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl text-center font-semibold my-7">Sign Up</h1>
+      <h1 className="text-3xl text-center font-semibold my-7">Sign In</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="email"
@@ -89,7 +93,7 @@ export const SignIn = () => {
           <span className="text-blue-700">Sign Up</span>
         </Link>
       </div>
-        {error && <p className="text-red-500 mt-5">{error}</p>}
+        {error && <p className="text-red-500 mt-5">{error.message}</p>}
     </div>
   )
 }

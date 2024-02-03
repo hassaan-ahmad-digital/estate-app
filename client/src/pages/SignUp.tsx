@@ -1,6 +1,8 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { BASE_SERVER_URL } from "../utils/constants"
+import { useDispatch, useSelector } from "react-redux"
+import { errorSelector, loadingSelector, userActions } from "../store/user"
 
 // type Props = {}
 
@@ -18,10 +20,12 @@ const signUpFormInitialState: SignUpFormData = {
 
 export const SignUp = () => {
   const [formData, setFormData] = useState<SignUpFormData>(signUpFormInitialState)
-  const [error, setError] = useState<string | boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
+  const error = useSelector(errorSelector)
+  const loading = useSelector(loadingSelector)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
+  const {signUpStart, signUpFailure, signUpSuccess} = userActions
 
   const handleChange = (key: keyof SignUpFormData, value: string):void => {
     setFormData(prev => {
@@ -32,10 +36,9 @@ export const SignUp = () => {
     })
   }
 
-
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoading(true)
+    dispatch(signUpStart())
     const res = await fetch(`${BASE_SERVER_URL}/v1/auth/signup`, {
       method: 'POST',
       headers: {
@@ -46,12 +49,11 @@ export const SignUp = () => {
 
     const data = await res.json()
     if(!data.success) {
-      setError(data.message as string)
-      setLoading(false)
-      return;
+      const error = new Error(data.message as string)
+      dispatch(signUpFailure(error))
+      return
     }
-    setLoading(false)
-    setError(false)
+    dispatch(signUpSuccess(formData))
     setFormData(signUpFormInitialState)
     navigate('/sign-in')
     console.log({data})
@@ -98,7 +100,7 @@ export const SignUp = () => {
           <span className="text-blue-700">Sign In</span>
         </Link>
       </div>
-        {error && <p className="text-red-500 mt-5">{error}</p>}
+        {error && <p className="text-red-500 mt-5">{error.message}</p>}
     </div>
   )
 }
