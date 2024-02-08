@@ -23,7 +23,6 @@ export const signup = async (req, res, next) => {
 
 export const signin = async (req, res, next) => {
   try {
-    debugger
     const {email, password} = req.body;
 
     const validUser = await UserModel.findOne({email})

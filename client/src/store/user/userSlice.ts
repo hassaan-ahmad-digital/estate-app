@@ -1,14 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit"
 import { RootState } from ".."
+import { Document } from "mongoose"
+
+interface CurrentUser extends Document {
+  username: string;
+  email: string;
+  photo: string;
+} 
 
 type UserSliceType = {
-  currentUser: object | null
+  currentUser: CurrentUser | null
   error: Error | null
   loading: boolean
 }
 
 const initialState: UserSliceType = {
-  currentUser: {},
+  currentUser: null,
   error: null,
   loading: false,
 }
@@ -46,5 +53,6 @@ const userSlice = createSlice({
 
 export const errorSelector = (state:RootState) => state.user.error
 export const loadingSelector = (state:RootState) => state.user.loading
+export const userSelector = (state:RootState) => state.user.currentUser
 
 export const {actions: userActions, reducer: userReducer } = userSlice

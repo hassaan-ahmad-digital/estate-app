@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { About, Home, Profile, SignIn, SignOut, SignUp } from "./pages"
-import { Header } from "./components"
-
+import { Header, PrivateRoute, PublicRoute } from "./components"
 
 const App = () => {
   return (
@@ -9,11 +8,15 @@ const App = () => {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-out" element={<SignOut />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route element={<PublicRoute />}>
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+        </Route>
+        <Route element={<PrivateRoute />}>
+          <Route path="/about" element={<About />} />
+          <Route path="/sign-out" element={<SignOut />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )

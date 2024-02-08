@@ -1,10 +1,13 @@
 import React from "react"
 import { FaSearch } from "react-icons/fa"
+import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
+import { userSelector } from "../store/user"
 
 // type Props = {}
 
 export const Header = () => {
+  const user = useSelector(userSelector)
   return (
     <header className="bg-slate-200 shadow-md ">
       <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
@@ -30,7 +33,13 @@ export const Header = () => {
             <Link to="/about">About</Link>
           </li>
           <li className=" text-slate-700 hover:underline">
-            <Link to="/sign-in">Home</Link>
+            {user ? (
+              <Link to="/profile">
+                <img className="rounded-full h-7 w-7 aspect-square object-cover" src={user.photo} alt="" />
+              </Link>
+            ): (
+              <Link to="/sign-in">Sign In</Link>
+            )}
           </li>
         </ul>
       </div>
