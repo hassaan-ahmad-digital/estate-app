@@ -4,7 +4,7 @@ import { errorHandler } from "../utils/index.js"
 import jwt from "jsonwebtoken"
 
 export const signup = async (req, res, next) => {
-  
+
   try {
     const {username, email, password} = req.body
   
@@ -13,8 +13,12 @@ export const signup = async (req, res, next) => {
     const newUser = new UserModel({username, email, password: hashedPassword})
 
     await newUser.save()
+    
+    debugger
+
+    const { password: pass, ...rest } = newUser._doc
   
-    res.status(201).json({success: true, message: 'User successfully created'})
+    res.status(201).json({success: true, message: 'User successfully created', user: rest})
     
   } catch (error) {
     next(error)
@@ -38,7 +42,7 @@ export const signin = async (req, res, next) => {
     res
       .cookie('access_token', token, {httpOnly: true})
       .status(200)
-      .json({success: true, user: rest})
+      .json({success: true,message: 'user logged in successfully', user: rest})
 
   } catch (error) {
     next(error)

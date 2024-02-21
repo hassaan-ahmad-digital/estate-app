@@ -54,7 +54,7 @@ export const SignUp = () => {
       dispatch(signUpFailure(error))
       return
     }
-    dispatch(signUpSuccess(formData))
+    dispatch(signUpSuccess(data?.user))
     setFormData(signUpFormInitialState)
     navigate('/sign-in')
     console.log({data})
